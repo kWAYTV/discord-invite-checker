@@ -1,0 +1,20 @@
+# Discord Invite Checker - discord.gg/kws
+
+# Tool settings
+threads: 250 # Threads to use
+proxy_file: "src/data/input/proxies.txt" # Proxy file to use
+invites_file: "src/data/input/invites.txt" # Invites file to use
+used_guilds_file: "src/data/input/used.txt" # Used guilds file to use
+output_folder: "src/data/output" # Output folder to use
+
+# Server settings
+minimum_members: 300 # Minimum members to check for
+minimum_online_members: 100 # Minimum online members to check for
+maximum_members: 75000 # Maximum members to check for
+minimum_boosts: 1 # Minimum boosts to check for
+blacklisted_words: # Blacklisted words to check for
+  - giveaway
+  - nitro
+  - free
+  - join
+  - invite
