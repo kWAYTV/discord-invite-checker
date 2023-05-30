@@ -35,6 +35,11 @@ class InviteChecker:
         with open(self.config.used_guilds_file, "r", encoding="utf8", errors="ignore") as used_invites_file:
             self.used_invites = used_invites_file.read().splitlines()
             return self.used_invites
+        
+    def refresh_current_used(self):
+        with open(f"{self.config.output_folder}/used.txt", "r", encoding="utf8", errors="ignore") as current_used_invites_file:
+            self.current_used_invites = current_used_invites_file.read().splitlines()
+            return self.current_used_invites
 
     # Function to get Checks Per Minute
     def get_cpm(self):
@@ -48,6 +53,7 @@ class InviteChecker:
     def process_invite(self, invite):
         session = requests.Session()
         session.proxies = self.set_proxy()
+        self.refresh_current_used()
 
         invite_code = invite.replace("https://", "").replace("discord.gg/", "").replace("discord.com/invite/", "")
 
@@ -75,6 +81,15 @@ class InviteChecker:
 
             # Check if the invite is already used
             if guild_id in self.used_invites:
+                self.used_invites_count += 1
+                with open(f"{self.config.output_folder}/used.txt", "a", encoding="utf8", errors="ignore") as used_invites_file:
+                    used_invites_file.write(f"{invite}\n")
+                self.logger.log("BAD", f"Invite already used: {guild_name} ({guild_id})")
+                os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+                return
+            
+            # Check if the invite is already in current used
+            if guild_id in self.current_used_invites:
                 self.used_invites_count += 1
                 with open(f"{self.config.output_folder}/used.txt", "a", encoding="utf8", errors="ignore") as used_invites_file:
                     used_invites_file.write(f"{invite}\n")
