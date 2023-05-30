@@ -6,12 +6,6 @@ This project is an example of a multi-threaded Discord Invite Checker built in P
 
 This project is strictly for **educational and demonstration purposes only**. It's a proof of concept (PoC) that demonstrates the mechanism of checking the status of Discord invites. Please do not misuse this software. Misuse of this software can lead to a violation of Discord's Terms of Service. The creators of this software are not responsible for any misuse of this software.
 
-## 📦 Dependencies
-
-- requests
-- colorama
-- concurrent.futures
-
 ## 💻 Usage
 
 1. Install the necessary dependencies:
