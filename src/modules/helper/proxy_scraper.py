@@ -1,6 +1,6 @@
 import requests
-from src.modules.helper.config import Config
 from src.modules.utils.logger import Logger
+from src.modules.helper.config import Config
 
 class ProxyScraper():
 

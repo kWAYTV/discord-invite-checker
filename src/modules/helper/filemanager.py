@@ -67,3 +67,19 @@ class FileManager():
 
         with open(self.config.invites_file, "w") as f:
             f.write("\n".join(seen_links))
+
+    def check_output(self):
+        files = [
+            "above_max_users.txt",
+            "above_min_boosts.txt",
+            "below_min_online.txt",
+            "below_min_users.txt",
+            "blacklisted.txt",
+            "invalid.txt",
+            "scraped_proxies.txt",
+            "used.txt",
+            "valid.txt"
+        ]
+        for file in files:
+            if not os.path.isfile(self.config.output_folder + "/" + file):
+                open(self.config.output_folder + "/" + file, "w+").write("")

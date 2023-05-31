@@ -1,8 +1,8 @@
 import os, logging, sys
 from src.modules.utils.logger import Logger
 from src.modules.helper.config import Config
-from src.modules.helper.filemanager import FileManager
 from src.modules.discord.checker import InviteChecker
+from src.modules.helper.filemanager import FileManager
 
 #Don't create .pyc
 sys.dont_write_bytecode = True
@@ -28,6 +28,9 @@ class Main():
 
         # Check if the input files are valid
         self.filemanager.check_input()
+
+        # Check if the output files exist
+        self.filemanager.check_output()
 
         # Start checking invites
         self.invite_checker.start()
