@@ -11,6 +11,8 @@ proxy_file: "/src/data/input/proxies.txt" # Proxy file to use
 invites_file: "/src/data/input/invites.txt" # Invites file to use
 used_guilds_file: "/src/data/input/used.txt" # Used guilds file to use
 output_folder: "/src/data/output" # Output folder to use
+scrape_proxies: true # Scrape proxies or not
+scraped_proxies_file: "src/data/output/scraped_proxies.txt" # Scraped proxies file to use
 
 # Server settings
 minimum_members: 300 # Minimum members to check for

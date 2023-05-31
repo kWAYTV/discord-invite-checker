@@ -3,6 +3,7 @@ from threading import Lock
 from src.modules.helper.config import Config
 from src.modules.utils.logger import Logger
 from concurrent.futures import ThreadPoolExecutor
+from src.modules.helper.proxy_scraper import ProxyScraper
 
 class InviteChecker:
 
@@ -10,17 +11,28 @@ class InviteChecker:
         self.config = Config()
         self.logger = Logger()
         self.lock = Lock()
+        self.proxy_scraper = ProxyScraper()
         self.threads = self.config.threads
         self.start_time = time.time()
 
         # Set the counters to 0
         self.total_invites, self.duped_invites, self.checked_invites, self.valid_invites, self.invalid_invites, self.used_invites_count, self.blacklisted_invites, self.below_min_users_invites, self.below_min_online_invites, self.above_max_users_invites, self.above_min_boosts_invites = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
+    # Proxy scraper
+    def load_proxy_list(self):
+        if self.config.scrape_proxies:
+            self.proxy_scraper.scrape_proxies()
+            proxy_file = self.config.scraped_proxies_file
+        else:
+            proxy_file = self.config.proxy_file
+
+        with open(proxy_file, "r", encoding="utf8", errors="ignore") as file:
+            self.proxy_list = file.read().splitlines()
+        return self.proxy_list
+
     # Set a proxy each request
     def set_proxy(self):
-        with open(self.config.proxy_file, "r", encoding="utf8", errors="ignore") as proxies_file:
-            proxy_list = proxies_file.read().splitlines()
-        proxy = random.choice(proxy_list)
+        proxy = random.choice(self.proxy_list)
         return {'http': f"http://{proxy}", 'https': f'http://{proxy}'}
 
     # Read invites from file
@@ -67,7 +79,7 @@ class InviteChecker:
                 self.invalid_invites += 1
                 with open(f"{self.config.output_folder}/invalid.txt", "a", encoding="utf8", errors="ignore") as invalid_invites_file:
                     invalid_invites_file.write(f"{invite}\n")
-                os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+                self.logger.change_title(f"Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
                 return
 
             # Get the response as json
@@ -85,7 +97,7 @@ class InviteChecker:
                 with open(f"{self.config.output_folder}/used.txt", "a", encoding="utf8", errors="ignore") as used_invites_file:
                     used_invites_file.write(f"{invite}\n")
                 self.logger.log("BAD", f"Invite already used: {guild_name} ({guild_id})")
-                os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+                self.logger.change_title(f"Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
                 return
             
             # Check if the invite is already in current used
@@ -94,7 +106,7 @@ class InviteChecker:
                 with open(f"{self.config.output_folder}/used.txt", "a", encoding="utf8", errors="ignore") as used_invites_file:
                     used_invites_file.write(f"{invite}\n")
                 self.logger.log("BAD", f"Invite already used: {guild_name} ({guild_id})")
-                os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+                self.logger.change_title(f"Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
                 return
 
             # Check if the guild name contains a blacklisted word
@@ -104,7 +116,7 @@ class InviteChecker:
                     with open(f"{self.config.output_folder}/blacklisted.txt", "a", encoding="utf8", errors="ignore") as blacklisted_invites_file:
                         blacklisted_invites_file.write(f"{invite}\n")
                     self.logger.log("BAD", f"Blacklisted word found in guild name: {guild_name} ({guild_id})")
-                    os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+                    self.logger.change_title(f"Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
                     return
 
             # Check if the guild has enough members
@@ -113,7 +125,7 @@ class InviteChecker:
                 with open(f"{self.config.output_folder}/below_min_users.txt", "a", encoding="utf8", errors="ignore") as below_min_users_file:
                     below_min_users_file.write(f"{invite}\n")
                 self.logger.log("BAD", f"Guild has less than {self.config.minimum_members} members: {guild_name} ({guild_id})")
-                os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+                self.logger.change_title(f"Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
                 return
 
             # Check if the guild has enough online members
@@ -122,7 +134,7 @@ class InviteChecker:
                 with open(f"{self.config.output_folder}/below_min_online.txt", "a", encoding="utf8", errors="ignore") as below_min_online_file:
                     below_min_online_file.write(f"{invite}\n")
                 self.logger.log("BAD", f"Guild has less than {self.config.minimum_online_members} online members: {guild_name} ({guild_id})")
-                os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+                self.logger.change_title(f"Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
                 return
 
             # Check if the guild has too many members
@@ -131,7 +143,7 @@ class InviteChecker:
                 with open(f"{self.config.output_folder}/above_max_users.txt", "a", encoding="utf8", errors="ignore") as above_max_users_file:
                     above_max_users_file.write(f"{invite}\n")
                 self.logger.log("BAD", f"Guild has more than {self.config.maximum_members} members: {guild_name} ({guild_id})")
-                os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+                self.logger.change_title(f"Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
                 return
 
             # Check if the guild has enough boosts
@@ -140,7 +152,7 @@ class InviteChecker:
                 with open(f"{self.config.output_folder}/above_min_boosts.txt", "a", encoding="utf8", errors="ignore") as above_min_boosts_file:
                     above_min_boosts_file.write(f"{invite}\n")
                 self.logger.log("BAD", f"Guild has less than {self.config.minimum_boosts} boosts: {guild_name} ({guild_id})")
-                os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+                self.logger.change_title(f"Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
                 return
 
             # If the guild is valid, write it to the output file
@@ -151,18 +163,25 @@ class InviteChecker:
                 used_invites_file.write(f"{guild_id}\n")
             self.logger.log("OK", f"Valid guild found: {guild_name} ({guild_id})")
 
-            os.system(f"title Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
+            self.logger.change_title(f"Discord Invite Checker {self.config.build_version} • CPM: {self.get_cpm()} • Checked: {self.checked_invites}/{self.total_invites} • Valid: {self.valid_invites} • Invalid: {self.invalid_invites} • Blacklisted: {self.blacklisted_invites} • Used: {self.used_invites_count} • Below Min Users: {self.below_min_users_invites} • Below Min Online: {self.below_min_online_invites} • Above Max Users: {self.above_max_users_invites} • Above Min Boosts: {self.above_min_boosts_invites} • discord.gg/kws")
 
     # Start the checker
     def start(self):    
 
         # Load invites from file
+        self.logger.log("INFO", "Loading invites...")
         self.load_invites()
 
         # Load used invites from file
+        self.logger.log("INFO", "Loading used invites...")
         self.load_used_invites()
 
+        # Load proxies from file
+        self.logger.log("INFO", "Loading proxies...")
+        self.load_proxy_list()
+
         # Start ThreadPoolExecutor  
+        self.logger.log("INFO", "Starting threads...")
         with ThreadPoolExecutor(max_workers=self.threads) as executor:
             executor.map(self.process_invite, self.invites)
 

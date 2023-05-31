@@ -17,6 +17,8 @@ class Config():
             self.invites_file = self.config["invites_file"]
             self.used_guilds_file = self.config["used_guilds_file"]
             self.output_folder = self.config["output_folder"]
+            self.scrape_proxies = self.config["scrape_proxies"]
+            self.scraped_proxies_file = self.config["scraped_proxies_file"]
 
             # Server settings
             self.minimum_members = self.config["minimum_members"]

@@ -1,8 +1,11 @@
-import os, logging
+import os, logging, sys
 from src.modules.utils.logger import Logger
 from src.modules.helper.config import Config
 from src.modules.helper.filemanager import FileManager
 from src.modules.discord.checker import InviteChecker
+
+#Don't create .pyc
+sys.dont_write_bytecode = True
 
 # Set title
 if os.name == 'nt':

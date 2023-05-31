@@ -1,4 +1,4 @@
-import os
+import os, platform
 from os import system, name
 from datetime import datetime
 from colorama import Fore, Style
@@ -49,3 +49,9 @@ class Logger:
         now = datetime.now()
         current_time = now.strftime("%d/%m/%Y • %H:%M:%S")
         print(f"{Style.DIM}{current_time} • {Style.RESET_ALL}{Style.BRIGHT}{color}[{Style.RESET_ALL}{type}{Style.BRIGHT}{color}] {Style.RESET_ALL}{Style.BRIGHT}{Fore.WHITE}{message}")
+
+    def change_title(self, title):
+        if platform.system() == 'Windows':
+            os.system(f'title {title}')
+        elif platform.system() == 'Linux':
+            os.system(f'echo -ne "\033]0;{title}\007"')
